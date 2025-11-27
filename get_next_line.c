@@ -1,0 +1,97 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/26 10:54:37 by nmontard          #+#    #+#             */
+/*   Updated: 2025/11/27 15:34:03 by nmontard         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "get_next_line.h"
+#include <stdlib.h>
+#include <unistd.h>
+
+static void	reset_stash(size_t limit, char stash[BUFFER_SIZE + 1])
+{
+	int		i;
+	char	temp_stash[BUFFER_SIZE + 1];
+
+	i = 0;
+	while (stash[limit + i] != '\0')
+	{
+		temp_stash[i] = stash[limit + i];
+		i++;
+	}
+	temp_stash[i] = '\0';
+	i = 0;
+	while (temp_stash[i] != '\0')
+	{
+		stash[i] = temp_stash[i];
+		i++;
+	}
+	stash[i] = '\0';
+}
+
+static char	*get_line(char stash[BUFFER_SIZE + 1], int fd)
+{
+	char	*buffer;
+	char	*temp_buffer;
+	int		i;
+
+	// TODO add sizeof_line var if space for it
+	i = 0;
+	buffer = malloc(sizeof(char) * (ft_strlen(stash) + 1));
+	if (buffer == NULL)
+		return (NULL);
+	while (stash[i] != '\0')
+	{
+		buffer[i] = stash[i];
+		i++;
+	}
+	buffer[i] = '\0';
+	while (!sizeof_line(buffer) && read(fd, stash, BUFFER_SIZE))
+		buffer = ft_strjoin(buffer, stash);
+	temp_buffer = ft_strndup(buffer, sizeof_line(buffer));
+	free(buffer);
+	buffer = temp_buffer;
+	if (sizeof_line(stash), stash)
+		reset_stash(sizeof_line(stash), stash);
+	return (buffer);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	stash[BUFFER_SIZE + 1];
+	char		*buffer;
+	int			i;
+
+	i = 0;
+	if (fd < 1)
+		return (NULL);
+	// TODO add sizeof_line var if space for it
+	if (sizeof_line(stash))
+	{
+		buffer = ft_strndup(stash, sizeof_line(stash));
+		if (buffer == NULL)
+			return (0);
+		reset_stash(sizeof_line(stash), stash);
+		return (buffer);
+	}
+	buffer = get_line(stash, fd);
+	if (buffer[0] == '\0')
+		return (NULL);
+	return (buffer);
+}
+
+#include <fcntl.h>
+
+int	main(void)
+{
+	int	fd;
+
+	fd = open("get_next_line.c", O_RDONLY);
+	printf("%s", get_next_line(fd));
+}
