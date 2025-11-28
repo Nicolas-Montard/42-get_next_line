@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 10:12:06 by nmontard          #+#    #+#             */
-/*   Updated: 2025/11/27 15:32:01 by nmontard         ###   ########.fr       */
+/*   Updated: 2025/11/28 15:51:36 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,16 +69,22 @@ char	*ft_strjoin(char *s1, char *s2)
 	return (newstr);
 }
 
-char	*ft_strndup(const char *s, unsigned int limit)
+char	*cut_line(char *s)
 {
-	size_t	i;
+	int		s_len;
 	char	*dest;
+	int		i;
 
 	i = 0;
-	dest = malloc(sizeof(char) * (limit + 1));
-	if (!dest)
-		return (dest);
-	while (s[i] != '\0' && i < limit)
+	s_len = 0;
+	while (s[s_len] != '\0' && s[s_len] != '\n')
+		s_len++;
+	if (s[s_len] == '\n')
+		s_len++;
+	dest = malloc(sizeof(char) * (s_len + 1));
+	if (dest == NULL)
+		return (NULL);
+	while (i < s_len)
 	{
 		dest[i] = s[i];
 		i++;

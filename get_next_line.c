@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 10:54:37 by nmontard          #+#    #+#             */
-/*   Updated: 2025/11/27 15:34:03 by nmontard         ###   ########.fr       */
+/*   Updated: 2025/11/28 16:16:23 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-static void	reset_stash(size_t limit, char stash[BUFFER_SIZE + 1])
+static void	reset_stash(size_t limit, char stash[BUFFER_SIZE])
 {
 	int		i;
-	char	temp_stash[BUFFER_SIZE + 1];
+	char	temp_stash[BUFFER_SIZE];
 
 	i = 0;
 	while (stash[limit + i] != '\0')
@@ -35,11 +35,12 @@ static void	reset_stash(size_t limit, char stash[BUFFER_SIZE + 1])
 	stash[i] = '\0';
 }
 
-static char	*get_line(char stash[BUFFER_SIZE + 1], int fd)
+static char	*get_line(char stash[BUFFER_SIZE], int fd)
 {
 	char	*buffer;
 	char	*temp_buffer;
 	int		i;
+	int		byte_read;
 
 	// TODO add sizeof_line var if space for it
 	i = 0;
@@ -52,46 +53,63 @@ static char	*get_line(char stash[BUFFER_SIZE + 1], int fd)
 		i++;
 	}
 	buffer[i] = '\0';
-	while (!sizeof_line(buffer) && read(fd, stash, BUFFER_SIZE))
+	while (!sizeof_line(buffer) && (byte_read = read(fd, stash, BUFFER_SIZE)))
+	{
+		stash[byte_read] = '\0';
 		buffer = ft_strjoin(buffer, stash);
-	temp_buffer = ft_strndup(buffer, sizeof_line(buffer));
+	}
+	temp_buffer = cut_line(buffer);
 	free(buffer);
 	buffer = temp_buffer;
-	if (sizeof_line(stash), stash)
+	if (sizeof_line(stash))
 		reset_stash(sizeof_line(stash), stash);
 	return (buffer);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	stash[BUFFER_SIZE + 1];
+	static char	stash[BUFFER_SIZE] = {0};
 	char		*buffer;
-	int			i;
 
-	i = 0;
-	if (fd < 1)
+	if (fd < 1 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 		return (NULL);
 	// TODO add sizeof_line var if space for it
 	if (sizeof_line(stash))
 	{
-		buffer = ft_strndup(stash, sizeof_line(stash));
+		buffer = cut_line(stash);
 		if (buffer == NULL)
 			return (0);
 		reset_stash(sizeof_line(stash), stash);
 		return (buffer);
 	}
 	buffer = get_line(stash, fd);
-	if (buffer[0] == '\0')
+	if (buffer && buffer[0] == '\0')
+	{
+		free(buffer);
+		return (NULL);
+	}
+	if (!buffer)
 		return (NULL);
 	return (buffer);
 }
 
-#include <fcntl.h>
+// #include <fcntl.h>
 
-int	main(void)
-{
-	int	fd;
+// int	main(void)
+// {
+// 	int		fd;
+// 	int		i;
+// 	char	*line;
 
-	fd = open("get_next_line.c", O_RDONLY);
-	printf("%s", get_next_line(fd));
-}
+// 	i = 0;
+// 	fd = open("nl", O_RDONLY);
+// 	while (i < 5)
+// 	{
+// 		line = get_next_line(fd);
+// 		dprintf(1, "%s", line);
+// 		if (line)
+// 			free(line);
+// 		i++;
+// 	}
+// 	close(fd);
+// }
