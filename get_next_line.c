@@ -53,25 +53,34 @@ static char	*get_line(char stash[BUFFER_SIZE], int fd)
 		i++;
 	}
 	buffer[i] = '\0';
-	while (!sizeof_line(buffer) && (byte_read = read(fd, stash, BUFFER_SIZE)))
+	while (buffer && !sizeof_line(buffer) && ((byte_read = read(fd, stash, BUFFER_SIZE)) > 0))
 	{
 		stash[byte_read] = '\0';
 		buffer = ft_strjoin(buffer, stash);
 	}
+	if(byte_read < 0)
+	{
+		free(buffer);
+		return (NULL);
+	}
 	temp_buffer = cut_line(buffer);
 	free(buffer);
+	if (temp_buffer == NULL)
+		return (NULL);
 	buffer = temp_buffer;
 	if (sizeof_line(stash))
 		reset_stash(sizeof_line(stash), stash);
+	else
+		stash[0] = '\0';
 	return (buffer);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	stash[BUFFER_SIZE] = {0};
+	static char	stash[BUFFER_SIZE];
 	char		*buffer;
 
-	if (fd < 1 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	// TODO add sizeof_line var if space for it
 	if (sizeof_line(stash))

@@ -61,7 +61,10 @@ char	*ft_strjoin(char *s1, char *s2)
 	s2_len = ft_strlen(s2);
 	newstr = malloc((s1_len + s2_len + 1) * sizeof(char));
 	if (!newstr)
+	{
+		free(s1);
 		return (newstr);
+	}
 	newstr[0] = '\0';
 	ft_strlcat(newstr, s1, s1_len + 1);
 	ft_strlcat(newstr, s2, s1_len + s2_len + 1);
