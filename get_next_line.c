@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 10:54:37 by nmontard          #+#    #+#             */
-/*   Updated: 2025/11/28 16:16:23 by nmontard         ###   ########.fr       */
+/*   Updated: 2025/12/01 15:50:35 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,39 @@ static void	reset_stash(size_t limit, char stash[BUFFER_SIZE])
 	stash[i] = '\0';
 }
 
+static void	fill_buffer_line(char stash[BUFFER_SIZE], int fd, char **buffer)
+{
+	int		byte_read;
+	char	*temp_buffer;
+
+	while (*buffer && !sizeof_line(*buffer))
+	{
+		byte_read = read(fd, stash, BUFFER_SIZE);
+		if (byte_read < 1)
+			break ;
+		stash[byte_read] = '\0';
+		*buffer = ft_strjoin(*buffer, stash);
+	}
+	if (byte_read < 0)
+	{
+		stash[0] = '\0';
+		free(*buffer);
+		*buffer = 0;
+		return ;
+	}
+	temp_buffer = cut_line(*buffer);
+	free(*buffer);
+	if (temp_buffer == NULL)
+		return ;
+	*buffer = temp_buffer;
+	return ;
+}
+
 static char	*get_line(char stash[BUFFER_SIZE], int fd)
 {
 	char	*buffer;
-	char	*temp_buffer;
 	int		i;
-	int		byte_read;
 
-	// TODO add sizeof_line var if space for it
 	i = 0;
 	buffer = malloc(sizeof(char) * (ft_strlen(stash) + 1));
 	if (buffer == NULL)
@@ -53,21 +78,7 @@ static char	*get_line(char stash[BUFFER_SIZE], int fd)
 		i++;
 	}
 	buffer[i] = '\0';
-	while (buffer && !sizeof_line(buffer) && ((byte_read = read(fd, stash, BUFFER_SIZE)) > 0))
-	{
-		stash[byte_read] = '\0';
-		buffer = ft_strjoin(buffer, stash);
-	}
-	if(byte_read < 0)
-	{
-		free(buffer);
-		return (NULL);
-	}
-	temp_buffer = cut_line(buffer);
-	free(buffer);
-	if (temp_buffer == NULL)
-		return (NULL);
-	buffer = temp_buffer;
+	fill_buffer_line(stash, fd, &buffer);
 	if (sizeof_line(stash))
 		reset_stash(sizeof_line(stash), stash);
 	else
@@ -82,7 +93,6 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	// TODO add sizeof_line var if space for it
 	if (sizeof_line(stash))
 	{
 		buffer = cut_line(stash);
@@ -111,7 +121,7 @@ char	*get_next_line(int fd)
 // 	char	*line;
 
 // 	i = 0;
-// 	fd = open("nl", O_RDONLY);
+// 	fd = open("1char.txt", O_RDONLY);
 // 	while (i < 5)
 // 	{
 // 		line = get_next_line(fd);

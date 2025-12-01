@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 10:12:06 by nmontard          #+#    #+#             */
-/*   Updated: 2025/11/28 15:51:36 by nmontard         ###   ########.fr       */
+/*   Updated: 2025/12/01 15:51:15 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ size_t	ft_strlen(char *str)
 		i++;
 	return (i);
 }
+
 size_t	ft_strlcat(char *dest, const char *src, size_t size)
 {
 	size_t	dest_len;
