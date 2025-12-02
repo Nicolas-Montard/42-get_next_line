@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 10:54:37 by nmontard          #+#    #+#             */
-/*   Updated: 2025/12/01 15:50:35 by nmontard         ###   ########.fr       */
+/*   Updated: 2025/12/02 14:12:41 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,17 @@
 
 static void	reset_stash(size_t limit, char stash[BUFFER_SIZE])
 {
-	int		i;
-	char	temp_stash[BUFFER_SIZE];
+	int	i;
 
 	i = 0;
+	if (limit == 0)
+	{
+		stash[0] = '\0';
+		return ;
+	}
 	while (stash[limit + i] != '\0')
 	{
-		temp_stash[i] = stash[limit + i];
-		i++;
-	}
-	temp_stash[i] = '\0';
-	i = 0;
-	while (temp_stash[i] != '\0')
-	{
-		stash[i] = temp_stash[i];
+		stash[i] = stash[limit + i];
 		i++;
 	}
 	stash[i] = '\0';
@@ -57,6 +54,7 @@ static void	fill_buffer_line(char stash[BUFFER_SIZE], int fd, char **buffer)
 	}
 	temp_buffer = cut_line(*buffer);
 	free(*buffer);
+	*buffer = 0;
 	if (temp_buffer == NULL)
 		return ;
 	*buffer = temp_buffer;
@@ -67,6 +65,7 @@ static char	*get_line(char stash[BUFFER_SIZE], int fd)
 {
 	char	*buffer;
 	int		i;
+	int		size_of_line;
 
 	i = 0;
 	buffer = malloc(sizeof(char) * (ft_strlen(stash) + 1));
@@ -79,8 +78,9 @@ static char	*get_line(char stash[BUFFER_SIZE], int fd)
 	}
 	buffer[i] = '\0';
 	fill_buffer_line(stash, fd, &buffer);
-	if (sizeof_line(stash))
-		reset_stash(sizeof_line(stash), stash);
+	size_of_line = sizeof_line(stash);
+	if (size_of_line)
+		reset_stash(size_of_line, stash);
 	else
 		stash[0] = '\0';
 	return (buffer);
@@ -88,17 +88,19 @@ static char	*get_line(char stash[BUFFER_SIZE], int fd)
 
 char	*get_next_line(int fd)
 {
-	static char	stash[BUFFER_SIZE];
+	static char	stash[BUFFER_SIZE + 1];
 	char		*buffer;
+	int			size_of_line;
 
+	size_of_line = sizeof_line(stash);
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (sizeof_line(stash))
+	if (size_of_line)
 	{
 		buffer = cut_line(stash);
 		if (buffer == NULL)
 			return (0);
-		reset_stash(sizeof_line(stash), stash);
+		reset_stash(size_of_line, stash);
 		return (buffer);
 	}
 	buffer = get_line(stash, fd);
@@ -112,23 +114,3 @@ char	*get_next_line(int fd)
 	return (buffer);
 }
 
-// #include <fcntl.h>
-
-// int	main(void)
-// {
-// 	int		fd;
-// 	int		i;
-// 	char	*line;
-
-// 	i = 0;
-// 	fd = open("1char.txt", O_RDONLY);
-// 	while (i < 5)
-// 	{
-// 		line = get_next_line(fd);
-// 		dprintf(1, "%s", line);
-// 		if (line)
-// 			free(line);
-// 		i++;
-// 	}
-// 	close(fd);
-// }

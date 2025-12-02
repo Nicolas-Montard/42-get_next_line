@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 10:12:06 by nmontard          #+#    #+#             */
-/*   Updated: 2025/12/01 15:51:15 by nmontard         ###   ########.fr       */
+/*   Updated: 2025/12/02 11:57:26 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,8 @@ char	*cut_line(char *s)
 
 	i = 0;
 	s_len = 0;
+	if (!s)
+		return (NULL);
 	while (s[s_len] != '\0' && s[s_len] != '\n')
 		s_len++;
 	if (s[s_len] == '\n')
