@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/26 10:54:37 by nmontard          #+#    #+#             */
-/*   Updated: 2025/12/02 14:46:01 by nmontard         ###   ########.fr       */
+/*   Created: 2025/12/02 14:25:25 by nmontard          #+#    #+#             */
+/*   Updated: 2025/12/02 14:41:39 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -88,22 +88,22 @@ static char	*get_line(char stash[BUFFER_SIZE], int fd)
 
 char	*get_next_line(int fd)
 {
-	static char	stash[BUFFER_SIZE + 1];
+	static char	stash[FD_MAX][BUFFER_SIZE + 1];
 	char		*buffer;
 	int			size_of_line;
 
-	size_of_line = sizeof_line(stash);
+	size_of_line = sizeof_line(stash[fd]);
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (size_of_line)
 	{
-		buffer = cut_line(stash);
+		buffer = cut_line(stash[fd]);
 		if (buffer == NULL)
 			return (0);
-		reset_stash(size_of_line, stash);
+		reset_stash(size_of_line, stash[fd]);
 		return (buffer);
 	}
-	buffer = get_line(stash, fd);
+	buffer = get_line(stash[fd], fd);
 	if (buffer && buffer[0] == '\0')
 	{
 		free(buffer);
